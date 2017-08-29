@@ -1,0 +1,47 @@
+﻿<?xml version='1.0' encoding='UTF-8'?>
+<!ELEMENT ActionList (SetResult)*>
+
+<!ATTLIST ActionList
+
+     sessionID CDATA #IMPLIED
+
+   >
+
+
+<!ELEMENT SetResult (Verdict?,Annotation?,(AddRelatedItem*|RemoveRelatedItem*|AddAttachment*|RemoveAttachment*|SetStepResult*)*)>
+<!ATTLIST SetResult
+    caseID CDATA #REQUIRED
+    >
+
+<!ELEMENT Annotation (#PCDATA)>
+
+<!ELEMENT AddAttachment (Description)?>
+<!ATTLIST AddAttachment
+    name CDATA #IMPLIED
+    file CDATA #REQUIRED
+  >
+
+<!ELEMENT RemoveAttachment EMPTY>
+<!ATTLIST RemoveAttachment
+    name CDATA #REQUIRED
+  >
+ 
+<!ELEMENT Description (#PCDATA)>
+
+<!ELEMENT AddRelatedItem EMPTY>
+<!ATTLIST AddRelatedItem
+    id CDATA #REQUIRED
+  >
+ 
+<!ELEMENT RemoveRelatedItem EMPTY>
+<!ATTLIST RemoveRelatedItem
+    id CDATA #REQUIRED
+  >
+
+<!ELEMENT SetStepResult (Result?,Annotation?)>
+<!ATTLIST SetStepResult
+    stepID CDATA #REQUIRED
+ >
+
+<!ELEMENT Verdict (#PCDATA)>
+

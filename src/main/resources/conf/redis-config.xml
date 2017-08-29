@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<beans xmlns="http://www.springframework.org/schema/beans"  
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context 
+		http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <bean id="poolConfig" class="redis.clients.jedis.JedisPoolConfig" >
+        <property name="maxIdle" value="${redis.maxIdle}" />
+        <property name="maxWaitMillis" value="${redis.maxWait}" />
+        <property name="testOnBorrow" value="${redis.testOnBorrow}" />
+        <property name="maxTotal" value="${redis.maxTotal}" />
+        <property name="minIdle" value="${redis.minIdle}" />
+    </bean >  
+    <bean id="jedisConnFactory" class="com.catlbattery.alm.redis.SharedRedisFactory">
+  		<property name="hostName" value="${redis.host}" />
+	    <property name="port" value="${redis.port}" />
+	    <property name="poolConfig" ref="poolConfig" />
+	     <property name="addressConfig">  
+            <value>classpath:properties/redis.properties</value>
+        </property>
+        <property name="addressKeyPrefix" value="multi_" />
+	</bean>
+	<context:component-scan base-package="com.catlbattery.alm.redis" />
+
+</beans>  
