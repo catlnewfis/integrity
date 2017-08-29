@@ -1,0 +1,48 @@
+<style type="text/css" media="screen">
+body {background-color:#FFFFFF; font-family: Verdana,Arial,Helvetica,Tahoma,sans-serif; font-size: 11px; color:#666666;}
+a    {font-family: Verdana,Arial,Helvetica,Tahoma,sans-serif; font-size: 11px; color:#006699;}
+p    {font-family: Verdana,Arial,Helvetica,Tahoma,sans-serif; font-size: 11px; color:#666666; line-height:20px; margin-right:30px; margin-left:5px;}
+th   {font-family: Verdana,Arial,Helvetica,Tahoma,sans-serif; font-size: 12px; color:#666666; line-height:20px; margin-right:30px; margin-left:5px;}
+td   {font-family: Verdana,Arial,Helvetica,Tahoma,sans-serif; font-size: 11px; color:#666666; line-height:20px; margin-right:30px; margin-left:5px;}
+h1   {font-family: Tahoma,Verdana,Arial,Helvetica,sans-serif; font-size: 18px; font-weight:lighter; color:#3366CC; margin-left:5px}
+h2   {font-family: Tahoma,Verdana,Arial,Helvetica,sans-serif; font-size: 16px; font-weight:lighter; color:#3366CC; margin-left:5px}
+h3   {font-family: Tahoma,Verdana,Arial,Helvetica,sans-serif; font-size: 14px; font-weight:lighter; color:#3366CC; margin-left:5px}
+
+.title {font-family: Tahoma,Verdana,Arial,Helvetica,sans-serif; font-size: 18px; font-weight:lighter; color:#3366CC; margin-left:5px}
+.title_white {font-family: Tahoma,Verdana,Arial,Helvetica,sans-serif; font-size: 18px; font-weight:lighter; color:#FFFFFF; margin-left:5px; margin-right:5px;}
+
+.heading {background-color:#242424;}
+.header {text-align: center}
+.white_bg {background-color:#FFFFFF;}
+.white_fg {color:#FFFFFF;}
+.date {font-size: 11px; color: #666666; font-weight: bold; text-align: right;}
+.footer {font-size: 9px; color: #999999; text-align: right;}
+
+img {border:none}
+
+table.fullWidth {width: 100%;}
+
+.warning {color: #FF6666; font-weight: bold}
+.detailrows .detailheading {padding: 2px 8px; background-color: #B6CCDD; font-weight: bold; text-align: center}
+.detailrows th {padding: 2px 8px; background-color: #60607A; color: #FFFFFF; font-weight: bold; text-align: right; vertical-align: top}
+.detailrows td {padding: 2px 8px; }
+.detailcols .detailheading {padding: 2px 8px; background-color: #B6CCDD; font-weight: bold; text-align: center}
+.detailcols th {padding: 2px 8px; background-color: #60607A; color: #FFFFFF; font-weight: bold}
+.detailcols td {padding: 2px 8px;}
+.detaillevels .detailheading {padding: 2px 8px; background-color: #B6CCDD; font-weight: bold; text-align: center}
+.detaillevels th {padding: 2px 8px; background-color: #60607A; color: #FFFFFF; font-weight: bold}
+
+.odd_row  { background-color: #ECECEC; }
+.even_row { background-color: #F5F5F5; }
+.level1 { background-color: #5E87A8; padding: 2px 2px 2px 2px; }
+.level2 { background-color: #7696B4; padding: 2px 2px 2px 2px; }
+.level2_indent { background-color: #7696B4; padding: 2px 2px 2px 12px; }
+.level3 { background-color: #92B0C7; padding: 2px 2px 2px 2px; }
+.level3_indent { background-color: #92B0C7; padding: 2px 2px 2px 22px; }
+.level4 { background-color: #B6CCDD; padding: 2px 2px 2px 2px; }
+.level4_indent { background-color: #B6CCDD; padding: 2px 2px 2px 32px; }
+.level5 { background-color: #D5E5F0; padding: 2px 2px 2px 2px; }
+.level5_indent { background-color: #D5E5F0; padding: 2px 2px 2px 42px; }
+.level6 { background-color: #EAF4FD; padding: 2px 2px 2px 2px; }
+.level6_indent { background-color: #EAF4FD; padding: 2px 2px 2px 52px; }
+</style>
