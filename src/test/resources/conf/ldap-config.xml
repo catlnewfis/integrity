@@ -27,7 +27,7 @@
 	<bean id="ldapTemplate" class="org.springframework.ldap.core.LdapTemplate">
 		<constructor-arg ref="contextSource" />
 	</bean>
-
+	<!-- serrvice注入 -->
 	<bean name="ldapService" class="com.catlbattery.alm.service.impl.LdapServiceImpl">
 		<property name="ldapTemplate">
 			<ref bean="ldapTemplate" />

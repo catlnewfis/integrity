@@ -15,9 +15,13 @@ import org.apache.commons.logging.LogFactory;
 import com.catlbattery.alm.caches.Caches;
 import com.catlbattery.alm.caches.Constants;
 import com.catlbattery.alm.connect.Connection;
+import com.catlbattery.alm.vo.PickVO;
+import com.catlbattery.alm.vo.ViewIssueOption;
 import com.mks.api.Command;
+import com.mks.api.FileOption;
 import com.mks.api.MultiValue;
 import com.mks.api.Option;
+import com.mks.api.OptionList;
 import com.mks.api.SelectionList;
 import com.mks.api.response.APIException;
 import com.mks.api.response.Field;
@@ -27,6 +31,7 @@ import com.mks.api.response.Response;
 import com.mks.api.response.Result;
 import com.mks.api.response.WorkItem;
 import com.mks.api.response.WorkItemIterator;
+import com.mks.api.response.impl.ItemImpl;
 
 public class IntegrityUtil {
 
@@ -83,6 +88,14 @@ public class IntegrityUtil {
 			return "";
 		}
 		
+	}
+	public String createItem(String type, Map<String, String> itemData) throws APIException {
+		Hashtable<String, String> hashData = new Hashtable<>();
+		for (String fieldName : itemData.keySet()) {
+			String fieldValue = itemData.get(fieldName);
+			hashData.put(fieldName, fieldValue);
+		}
+		return createItem(type, hashData);
 	}
 
 	public String createItem(String type, Hashtable<String, String> itemData) throws APIException {
@@ -271,6 +284,11 @@ public class IntegrityUtil {
 				if (StringUtil.isNotEmpty(removeFieldValues)) {
 					cmd.addOption(new Option("removeFieldValues", removeFieldValues));
 				}
+			} else if (fieldName.equalsIgnoreCase("removeAttachment")) {
+				String removeFieldValues = itemData.get("removeAttachment");
+				if (StringUtil.isNotEmpty(removeFieldValues)) {
+					cmd.addOption(new Option("removeAttachment", removeFieldValues));
+				}
 			} else {
 				String fieldValue = itemData.get(fieldName);
 				if (Caches.attachmentFields.contains(fieldName)) {
@@ -429,7 +447,15 @@ public class IntegrityUtil {
 		return item;
 	}
 
-	public List<Map<String, String>> findIssuesByQueryDef(List<String> fields, String query) throws APIException {
+	public List<Map<String, String>> findIssuesByQueryDef(List<String> fields, String query, boolean sortAscending, String sortField) throws APIException {
+		return findIssuesByQueryDef(fields, query, null, sortAscending, sortField);
+	}
+
+	public List<Map<String, String>> findIssuesByQueryDef(List<String> fields, String query, String asOf) throws APIException {
+		return findIssuesByQueryDef(fields, query, asOf, false, null);
+	}
+
+	public List<Map<String, String>> findIssuesByQueryDef(List<String> fields, String query, String asOf, boolean sortAscending, String sortField) throws APIException {
 		if (conn == null) {
 			throw new APIException("invoke findIssuesByQueryDef() ----- connection is null.");
 		}
@@ -452,6 +478,15 @@ public class IntegrityUtil {
 		Command command = new Command(Command.IM, Constants.ISSUES);
 		command.addOption(new Option(Constants.FIELDS, mv));
 		command.addOption(new Option(Constants.QUERY_DEFINITION, query));
+		if(StringUtil.isNotEmpty(asOf)) {
+			command.addOption(new Option("asOf", asOf));
+		}
+		if(StringUtil.isNotEmpty(sortField)) {
+			command.addOption(new Option("sortField", sortField));
+		}
+		if(!sortAscending) {
+			command.addOption(new Option("noSortAscending"));
+		}
 		Response res = conn.execute(command);
 		WorkItemIterator it = res.getWorkItems();
 		List<Map<String, String>> list = new ArrayList<>();
@@ -490,6 +525,18 @@ public class IntegrityUtil {
 	}
 
 	public Map<String, String> findissueById(String id) throws APIException {
+		return findissueById(id, null, null);
+	}
+
+	public Map<String, String> findissueById(String id, String asOf) throws APIException {
+		return findissueById(id, null, asOf);
+	}
+
+	public Map<String, String> findissueById(String id, ViewIssueOption vio) throws APIException {
+		return findissueById(id, vio, null);
+	}
+
+	public Map<String, String> findissueById(String id, ViewIssueOption vio, String asOf) throws APIException {
 		if (conn == null) {
 			throw new APIException("invoke findissueById() ----- connection is null.");
 		}
@@ -497,6 +544,30 @@ public class IntegrityUtil {
 			throw new APIException("invoke findissueById() ----- id is null or empty.");
 		}
 		Command command = new Command(Command.IM, Constants.VIEW_ISSUE);
+		command.addOption(new Option("substituteParams"));
+		if(StringUtil.isNotEmpty(asOf)) {
+			command.addOption(new Option("asOf", asOf));
+		}
+		if(vio != null) {
+			if(vio.isShowBranches()) {
+				command.addOption(new Option("showBranches"));
+			}
+			if(vio.isShowHistory()) {
+				command.addOption(new Option("showHistory"));
+			}
+			if(vio.isShowLabels()) {
+				command.addOption(new Option("showLabels"));
+			}
+			if(vio.isShowRichContent()) {
+				command.addOption(new Option("showRichContent"));
+			}
+			if(vio.isShowTestResults()) {
+				command.addOption(new Option("showTestResults"));
+			}
+			if(vio.isShowAttachmentDetails()) {
+				command.addOption(new Option("showAttachmentDetails"));
+			}
+		}
 		command.addSelection(id);
 		Response res = conn.execute(command);
 		Map<String, String> map = new HashMap<>();
@@ -530,6 +601,10 @@ public class IntegrityUtil {
 	}
 
 	public List<Map<String, String>> findIssuesByIds(List<String> fields, List<String> ids) throws APIException {
+		return findIssuesByIds(fields, ids, null);
+	}
+
+	public List<Map<String, String>> findIssuesByIds(List<String> fields, List<String> ids, String asOf) throws APIException {
 		if (conn == null) {
 			throw new APIException("invoke findIssuesByIds() ----- connection is null.");
 		}
@@ -551,6 +626,9 @@ public class IntegrityUtil {
 		}
 		Command command = new Command(Command.IM, Constants.ISSUES);
 		command.addOption(new Option(Constants.FIELDS, mv));
+		if(StringUtil.isNotEmpty(asOf)) {
+			command.addOption(new Option("asOf", asOf));
+		}
 		SelectionList sl = new SelectionList();
 		for (String id : ids) {
 			sl.add(id);
@@ -591,6 +669,27 @@ public class IntegrityUtil {
 			}
 		}
 		return list;
+	}
+
+	public void batchEdit(List<String> ids, Map<String, String> fieldvalues) throws APIException {
+		String commandName = "editissue";
+		OptionList ol = new OptionList();
+		Option option= new Option("batchEdit");
+		ol.add(option);
+		for (String key : fieldvalues.keySet()) {
+			MultiValue mv = new MultiValue("=");
+			mv.add(key);
+			mv.add(fieldvalues.get(key));
+			ol.add(new Option("field", mv));
+		}
+		SelectionList sl = new SelectionList();
+		for (String id : ids) {
+			sl.add(id);
+		}
+		Command cmd = new Command(Command.IM, commandName);
+		cmd.setOptionList(ol);
+		cmd.setSelectionList(sl);
+		conn.execute(cmd);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -696,6 +795,272 @@ public class IntegrityUtil {
 			}
 		}
 		return map;
+	}
+
+	public String deleteTestResult(String sessionID, String caseid) throws APIException {
+		Command cmd = new Command("deleteresult");
+		cmd.addOption(new Option("sessionID", sessionID));
+		cmd.addSelection(caseid);
+		Response res = conn.execute(cmd);
+		Result result = res.getResult();
+		String msg = null;
+		if(result != null) {
+			msg = result.getMessage();
+		}
+		return msg;
+	}
+
+	public String deleteTestResults(String sessionID, List<String> ids) throws APIException {
+		Command cmd = new Command("deleteresult");
+		cmd.addOption(new Option("sessionID", sessionID));
+		if(ids != null) {
+			for (String id : ids) {
+				cmd.addSelection(id);
+			}
+		}
+		Response res = conn.execute(cmd);
+		Result result = res.getResult();
+		String msg = null;
+		if(result != null) {
+			msg = result.getMessage();
+		}
+		return msg;
+	}
+
+	public String purgeResults(String before, String sessionID) throws APIException {
+		Command cmd = new Command("purgeresults");
+		cmd.addOption(new Option("before", before));
+		cmd.addSelection(sessionID);
+		Response res = conn.execute(cmd);
+		Result result = res.getResult();
+		String msg = null;
+		if(result != null) {
+			msg = result.getMessage();
+		}
+		return msg;
+	}
+
+	public List<PickVO> getVerdicts() throws APIException {
+		Command cmd =new Command(Command.TM, "verdicts");
+		Response res = conn.execute(cmd);
+		WorkItemIterator wis = res.getWorkItems();
+		List<PickVO> picks = new ArrayList<PickVO>();
+		while(wis.hasNext()) {
+			WorkItem wi = wis.next();
+			Boolean isActive = wi.getField("isactive").getBoolean();
+			if(isActive) {
+				PickVO pick = new PickVO();
+				pick.setValue(wi.getId());
+				pick.setName(wi.getDisplayId());
+				picks.add(pick);
+			}
+		}
+		return picks;
+	}
+
+
+	public List<PickVO> findPicksByIbplField(String field, String query) throws APIException {
+		long start = System.currentTimeMillis();
+		Command command =new Command(Command.IM, "issues");
+		command.addOption(new Option("fields", field));
+		Option option = new Option("queryDefinition", "(" + query + ")");
+		command.addOption(option);
+		Response res = conn.execute(command);
+		WorkItemIterator workItems = res.getWorkItems();
+		List<PickVO> picks = new ArrayList<PickVO>();
+		while(workItems.hasNext()) {
+			WorkItem wi = workItems.next();
+			String name = wi.getField(field).getValueAsString();
+			if(name == null) {
+				name = wi.getId();
+			}
+			String fullName = null;
+			if(field.equals("Assigned User")){
+				ItemImpl itemImpl  = (ItemImpl) wi.getField(field).getValue();				
+				Object o = null;
+				try {
+					o = itemImpl.getField("fullname");
+				} catch (Exception e) {
+					log.debug(e.getMessage());
+				}
+				if(o!=null){
+					fullName = itemImpl.getField("fullname").getValueAsString();
+				}
+			}
+			PickVO pick = new PickVO();
+			if(query.contains("field[Type]=Branch") || query.contains("field[Type]=Team")){
+				pick.setValue(name);
+			}else{
+				pick.setValue(wi.getId());
+			}
+			if(field.equals("Assigned User") && fullName!=null && !fullName.equals("")){
+				pick.setName(fullName+" ("+name+")");
+			}else{
+				pick.setName(name);
+			}
+			picks.add(pick);
+		}
+		log.info("findPicksByIpblField: " + (System.currentTimeMillis() - start));
+		return picks;
+	}
+
+	public List<PickVO> viewPicks(String fieldName) throws APIException {
+		Command cmd = new Command(Command.IM, "viewfield");
+		cmd.addSelection(fieldName);
+		Response res =  conn.execute(cmd);
+		WorkItem wi = res.getWorkItem(fieldName);
+		Field picks = wi.getField("picks");
+		ItemList list = (ItemList) picks.getList();
+		List<PickVO> picklist = new ArrayList<PickVO>();
+		for (int i = 0; i < list.size(); i++) {
+			Item item = (Item) list.get(i);
+			Boolean isActive = item.getField("active").getBoolean();
+			if(isActive) {
+				PickVO pick = new PickVO();
+				String name = item.getField("label").getString();
+				String value = item.getField("value").getValueAsString();
+				if(name == null) {
+					name = value;
+				}
+				pick.setName(name);
+				pick.setValue(value);
+				
+				picklist.add(pick);
+			}
+		}
+		return picklist;
+	}
+
+	public List<PickVO> viewIbplByFields(String field, Map<String, String> relatedFields) throws APIException {
+		long start = System.currentTimeMillis();
+		Command cmd = new Command(Command.IM, "viewfield");
+		cmd.addSelection(field);
+		Response res = conn.execute(cmd);
+		WorkItem wi = res.getWorkItem(field);
+		Field type = wi.getField("backingtype");
+		Field backtext = wi.getField("backingtextformat");
+		String text = backtext.getString();
+		text = text.substring(1, text.length() - 1);
+		Field backstate = wi.getField("backingstates");
+		StringBuilder sb = new StringBuilder();
+		sb.append("(field[Type]=").append(type.getString()).append(")");
+		if(backstate.getValue() != null) {
+			sb.append(" and (field[State]=").append(backstate.getString().replace(", ", ",")).append(")");
+		}
+		if(relatedFields != null) {
+			for(String key : relatedFields.keySet()) {
+				sb.append(" and (field[").append(key).append("]=").append(relatedFields.get(key)).append(")");
+			}
+		} else {
+			sb.append(" and (field[ID]=0)");
+		}
+		log.info("viewIbplFields: " + (System.currentTimeMillis() - start));
+		List<PickVO> picks = findPicksByIbplField(text, sb.toString());
+		return picks;
+	}
+
+	public List<PickVO> viewIbplByField(String field, String relatedField, String relatedValue) throws APIException {
+		Command cmd = new Command(Command.IM, "viewfield");
+		cmd.addSelection(field);
+		Response res = conn.execute(cmd);
+		WorkItem wi = res.getWorkItem(field);
+		Field type = wi.getField("backingtype");
+		Field backtext = wi.getField("backingtextformat");
+		String text = backtext.getString();
+		text = text.substring(1, text.length() - 1);
+		Field backstate = wi.getField("backingstates");
+		StringBuilder sb = new StringBuilder();
+		sb.append("(field[Type]=").append(type.getString()).append(")");
+		if(backstate.getValue() != null) {
+			sb.append(" and (field[State]=").append(backstate.getString().replace(", ", ",")).append(")");
+		}
+		sb.append(" and (field[").append(relatedField).append("]=").append(relatedValue).append(")");
+		List<PickVO> picks = findPicksByIbplField(text, sb.toString());
+		return picks;
+	}
+
+	public List<PickVO> viewIbpl(String fieldName) throws APIException {
+		return viewIbpl(fieldName, null);
+	}
+
+	public List<PickVO> viewIbpl(String fieldName, String condition) throws APIException {
+		Command cmd = new Command(Command.IM, "viewfield");
+		cmd.addSelection(fieldName);
+		Response res = conn.execute(cmd);
+		WorkItem wi = res.getWorkItem(fieldName);
+		Field type = wi.getField("backingtype");
+		Field backtext = wi.getField("backingtextformat");
+		String text = backtext.getString();
+		text = text.substring(1, text.length() - 1);
+		Field backstate = wi.getField("backingstates");
+		StringBuilder sb = new StringBuilder();
+		sb.append("(field[Type]=").append(type.getString()).append(")");
+		if(backstate.getValue() != null) {
+			sb.append(" and (field[State]=").append(backstate.getString().replace(", ", ",")).append(")");
+		}
+		if(condition != null && !condition.trim().isEmpty()) {
+			sb.append(" and (field[").append(text).append("]=").append(condition).append(")");
+		}
+		List<PickVO> picks = findPicksByIbplField(text, sb.toString());
+		return picks;
+	}
+
+	public List<PickVO> getAllowedTypes(String fieldName, String currentType) throws APIException {
+		Command command = new Command(Command.IM, "viewfield");
+		command.addSelection(fieldName);
+		Response res = conn.execute(command);
+		WorkItem wi = res.getWorkItem(fieldName);
+		String type = wi.getField("type").getValueAsString();
+		List<PickVO> list = new ArrayList<PickVO>();
+		if("relationship".equalsIgnoreCase(type)) {
+			ItemList il = (ItemList) wi.getField("allowedtypes").getList();
+			Item item = il.getItem(currentType);
+			if(item != null) {
+				ItemList itemlist = (ItemList) item.getField("to").getList();
+				for (int i = 0; i < itemlist.size(); i++) {
+					PickVO pick = new PickVO();
+					Item to = (Item) itemlist.get(i);
+					pick.setName(to.getId());
+					pick.setValue(to.getId());
+					list.add(pick);
+				}
+			}
+		}
+		return list;
+	}
+
+	public void extractIssueAttachs(String issueId, String field, String fileName, String outputFile, String asOf) throws APIException {
+		if(fileName == null || fileName.isEmpty()) {
+			log.error("FileName is empty:" + issueId + " Filename:" + fileName);
+			throw new APIException("FileName is empty:" + issueId + " Filename:" + fileName);
+		}
+		String commandName = "extractattachments";
+		Command cmd = new Command(Command.IM, commandName);
+		cmd.addOption(new Option("issue", issueId));
+		cmd.addOption(new Option("overwriteExisting"));
+		cmd.addOption(new FileOption("outputFile", outputFile));
+		if(field != null && !field.isEmpty()) {
+			cmd.addOption(new FileOption("field", field));
+		}
+		if(asOf != null) {
+			cmd.addOption(new FileOption("asOf", asOf));
+		}
+		cmd.addSelection(fileName);
+		conn.execute(cmd);
+	}
+
+	public void tmExtractResultAttachs(String resultId, String fileName, String outputFile) throws APIException {
+		if(fileName == null || fileName.isEmpty()) {
+			log.error("FileName is empty:" + resultId + " Filename:" + fileName);
+			throw new APIException("FileName is empty:" + resultId + " Filename:" + fileName);
+		}
+		String commandName = "extractattachments";
+		Command cmd = new Command(Command.IM, commandName);
+		cmd.addOption(new Option("resultID", resultId));
+		cmd.addOption(new Option("overwriteExisting"));
+		cmd.addOption(new FileOption("outputFile", outputFile));
+		cmd.addSelection(fileName);
+		conn.execute(cmd);
 	}
 
 }

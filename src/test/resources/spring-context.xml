@@ -41,6 +41,4 @@
 	<import resource="classpath:conf/integrity-config.xml" />
 	<import resource="classpath:conf/ldap-config.xml" />
 	<import resource="classpath:conf/db-config.xml" />
-	<import resource="classpath:conf/mybatis-config.xml" />
-	<import resource="classpath:conf/redis-config.xml" />
 </beans>

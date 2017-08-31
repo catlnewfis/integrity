@@ -13,6 +13,7 @@ import org.apache.commons.logging.LogFactory;
 import com.catlbattery.alm.caches.Caches;
 import com.catlbattery.alm.caches.Constants;
 import com.catlbattery.alm.connect.Connection;
+import com.catlbattery.alm.vo.StateVO;
 import com.mks.api.Command;
 import com.mks.api.MultiValue;
 import com.mks.api.Option;
@@ -163,9 +164,49 @@ public class TypeUtil {
 		return visibleFieldList;
 	}
 
+	public List<StateVO> viewState(String type) throws APIException {
+		List<StateVO> states = new ArrayList<StateVO>();
+		Command cmd = new Command(Command.IM, "viewtype");
+		WorkItem wi = null;
+		Response res = conn.execute(cmd);
+		wi = res.getWorkItem(type);
+		Field field = wi.getField("statetransitions");
+		if("com.mks.api.response.ItemList".equals(field.getDataType())) {
+			ItemList il = (ItemList) field.getList();
+			for (int i = 0; i < il.size(); i++) {
+				StateVO state = new StateVO();
+				Item item = (Item) il.get(i);
+				state.setState(item.toString());
+				Field targetField = item.getField("targetstates");
+				ItemList targetstates = (ItemList) targetField.getList();
+				List<String> target = new ArrayList<String>();
+				List<Map<String, List<String>>> list = new ArrayList<Map<String, List<String>>>();
+				for (int j = 0; j < targetstates.size(); j++) {
+					Item stateItem = (Item) targetstates.get(j);
+					String targetState = stateItem.toString();
+					target.add(targetState);
+					Map<String, List<String>> map = new HashMap<String, List<String>>();
+					Field groupField = stateItem.getField("permittedgroups");
+					ItemList values = (ItemList) groupField.getList();
+					List<String> groups = new ArrayList<String>(); 
+					for (int k = 0; k < values.size(); k++) {
+						Item group = (Item) values.get(k);
+						groups.add(group.toString());
+					}
+					map.put(targetState, groups);
+					list.add(map);
+				}
+				state.setTargetStates(target);
+				state.setGroups(list);
+				states.add(state);
+			}
+		}
+		return states;
+	}
+
 	private void setSpecialFields(List<String> visibleFieldList) throws APIException {
 		Command cmd = new Command("im", "fields");
-		cmd.addOption(new Option("onAsAdmin"));
+		cmd.addOption(new Option("noAsAdmin"));
 		cmd.addOption(new Option("fields", "name,type,showDateTime,richContent,backedBy"));
 		for (String visibleField : visibleFieldList) {
 			cmd.addSelection(visibleField);

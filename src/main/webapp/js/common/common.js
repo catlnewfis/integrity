@@ -12,7 +12,6 @@ NameSpace.Branches = NameSpace.Branches || {};
 NameSpace.Session = NameSpace.Session || {};
 NameSpace.Constraints = NameSpace.Constraints || {};
 NameSpace.ScrennWidth = NameSpace.ScrennWidth ||{};
-NameSpace.Radio = NameSpace.Radio ||{};
 
 Array.prototype.indexOf = function(val) {
 	for (var i = 0; i < this.length; i++) {
@@ -52,8 +51,4 @@ NameSpace.parseDate = function(date) {
 	if(date && date.time) {
 		return new Date(date.time);
 	}
-}
-
-NameSpace.formatDate = function(date) {
-	return Ext.Date.format(date,'M j, Y g:i:s A');
 }
