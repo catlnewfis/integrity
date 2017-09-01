@@ -22,25 +22,25 @@ public class IntegrityFactory implements InitializingBean {
 
 	private String host;
 
-	private int port = 7001; // 默认端口 Nov 15, 2016
+	private int port = 7001; 
 
-	private int majorVersion = 4; // 默认版本 Nov 15, 2016
+	private int majorVersion = 4;
 
-	private int minorVersion = 15; // 默认版本 Nov 15, 2016
+	private int minorVersion = 15;
 
 	private boolean secure;
 
-	private int maxCmdRunners = 10; // 最大数量
+	private int maxCmdRunners = 10;
 
-	private int initSession = 5; // 初始数量
+	private int initSession = 5;
 
-	private int maxSessionSize = 15; // 最大数量，不得超过100
+	private int maxSessionSize = 15;
 
-	private int waitTimes = 60; // 等待执行命令时间
+	private int waitTimes = 60;
 
 	private long lazyCheck = 60 * 60;
 
-	private long periodCheck = 60 * 60 * 2; // 每2小时session恢复到初始INIT_SESSION数量
+	private long periodCheck = 60 * 60 * 2; // 2 hours
 
 	private String userKeyPrefix;
 
@@ -49,7 +49,7 @@ public class IntegrityFactory implements InitializingBean {
 	private static Queue<SessionPool> pools;
 
 	public synchronized SessionPool getConnection() throws APIException {
-		SessionPool conn = pools.peek(); // 平衡所有连接 全部用户负载均衡
+		SessionPool conn = pools.peek(); // balance
 
 		if (conn == null) {
 			log.info("IntegrityFactory.getConnection: Connection Factory is null. Please check you config.");
@@ -57,13 +57,6 @@ public class IntegrityFactory implements InitializingBean {
 					"IntegrityFactory.getConnection: Connection Factory is null. Please check you config.");
 		}
 
-		/*
-		 * List<SessionPool> conns = new LinkedList<>(); // 多账号配置 while(conn != null) {
-		 * if(conn.sessionPeek()) { break; } conns.add(conn); conn = pools.peek(); }
-		 * 
-		 * if(!conns.isEmpty()) { pools.addAll(conns); } if(conn == null) { conn =
-		 * pools.poll(); } if(!conns.contains(conn)) { pools.offer(conn); }
-		 */
 		return conn;
 	}
 
