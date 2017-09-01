@@ -11,6 +11,8 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
 import com.catlbattery.alm.caches.Caches;
 import com.catlbattery.alm.caches.Constants;
@@ -33,22 +35,15 @@ import com.mks.api.response.WorkItem;
 import com.mks.api.response.WorkItemIterator;
 import com.mks.api.response.impl.ItemImpl;
 
+@Repository
 public class IntegrityUtil {
 
 	private static Log log = LogFactory.getLog(Connection.class);
 
-	private static IntegrityUtil instance;
-
-	private static Connection conn = (Connection) Caches.objects.get(Constants.CONECTION_KEY);
+	@Autowired
+	private Connection conn;
 
 	private IntegrityUtil() {
-	}
-
-	public synchronized static IntegrityUtil getInstance() {
-		if (instance == null) {
-			instance = new IntegrityUtil();
-		}
-		return instance;
 	}
 
 	public static String getMsg(APIException e) {

@@ -9,6 +9,8 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
 import com.catlbattery.alm.caches.Caches;
 import com.catlbattery.alm.caches.Constants;
@@ -25,22 +27,15 @@ import com.mks.api.response.Response;
 import com.mks.api.response.WorkItem;
 import com.mks.api.response.WorkItemIterator;
 
+@Repository
 public class TypeUtil {
 
 	private static Log log = LogFactory.getLog(FieldUtil.class);
 
-	private static TypeUtil instance;
-
-	private static Connection conn = (Connection) Caches.objects.get(Constants.CONECTION_KEY);
+	@Autowired
+	private Connection conn;
 
 	private TypeUtil() {
-	}
-
-	public synchronized static TypeUtil getInstance() {
-		if (instance == null) {
-			instance = new TypeUtil();
-		}
-		return instance;
 	}
 
 	public List<String> getObjectList(String command) throws APIException {
@@ -73,7 +68,7 @@ public class TypeUtil {
 		return list;
 	}
 
-	public static String contentType(String documentType) throws APIException {
+	public String contentType(String documentType) throws APIException {
 		String contentType = null;
 		Command command = new Command(Command.IM, Constants.VIEW_TYPE);
 		command.addSelection(documentType);

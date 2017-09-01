@@ -24,9 +24,9 @@ Array.prototype.indexOf = function(val) {
 
 Array.prototype.remove = function(val) {
 	var index = this.indexOf(val);
-	if (index > -1) {
-		this.splice(index, 1);
-	}
+		if (index > -1) {
+			return this.splice(index, 1);
+		}
 };
 
 jQuery.ajaxSetup({ timeout:0 });
@@ -41,14 +41,11 @@ $.ajax = function(obj){
 	$.jqAjax(obj);
 };
 
-function dateFormat(date) {
-	var jsDate = NameSpace.parseDate(date);
-	var str = NameSpace.formatDate(jsDate);
-	return str;
-}
-
 NameSpace.parseDate = function(date) {
-	if(date && date.time) {
-		return new Date(date.time);
+	if(date) {
+		if(date.time) {
+			return new Date(date.time);
+		}
+		return new Date(date);
 	}
 }

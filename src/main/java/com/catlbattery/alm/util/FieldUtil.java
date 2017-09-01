@@ -7,8 +7,9 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
-import com.catlbattery.alm.caches.Caches;
 import com.catlbattery.alm.caches.Constants;
 import com.catlbattery.alm.connect.Connection;
 import com.mks.api.Command;
@@ -20,24 +21,17 @@ import com.mks.api.response.ItemList;
 import com.mks.api.response.Response;
 import com.mks.api.response.WorkItem;
 
+@Repository
 public class FieldUtil {
 
 	private static Log log = LogFactory.getLog(FieldUtil.class);
 
-	private static FieldUtil instance;
-
-	private static Connection conn = (Connection) Caches.objects.get(Constants.CONECTION_KEY);
+	@Autowired
+	private Connection conn;
 
 	private static Map<String, List<String>> categories;
 
 	private FieldUtil() {
-	}
-
-	public synchronized static FieldUtil getInstance() {
-		if (instance == null) {
-			instance = new FieldUtil();
-		}
-		return instance;
 	}
 
 	public synchronized Map<String, List<String>> getCategories() throws APIException {

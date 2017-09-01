@@ -10,10 +10,14 @@ import java.util.concurrent.ArrayBlockingQueue;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.catlbattery.alm.util.IntegrityUtil;
+import com.mks.api.CmdRunner;
+import com.mks.api.Command;
 import com.mks.api.IntegrationPoint;
 import com.mks.api.IntegrationPointFactory;
 import com.mks.api.Session;
 import com.mks.api.response.APIException;
+import com.mks.api.response.Response;
 
 public class SessionPool {
 
@@ -22,9 +26,10 @@ public class SessionPool {
 	private MksInfo mksinfo;
 
 	private int count = 0;
+	private int times = 0;
 
 	private Queue<Session> freeConnection = new ArrayBlockingQueue<Session>(100);
-	private static IntegrationPoint ipf;
+	private static IntegrationPoint ip;
 
 	public SessionPool(MksInfo mksinfo) {
 		super();
@@ -37,24 +42,45 @@ public class SessionPool {
 	private void init() {
 		if (mksinfo != null) {
 			for (int i = 0; i < mksinfo.getInitSession(); i++) {
-				try {
-					Session session = createSession();
-					freeConnection.offer(session);
-				} catch (APIException e) {
-					logger.error("init: " + e.getMessage());
-				}
+				Session session = createSession();
+				freeConnection.offer(session);
 			}
 		}
 	}
 
-	private synchronized Session createSession() throws APIException {
-		Session session = null;
-		ipf = IntegrationPointFactory.getInstance().createIntegrationPoint(mksinfo.getHost(), mksinfo.getPort(),
-				mksinfo.isSecure(), mksinfo.getMajorVersion(), mksinfo.getMinorVersion());
-		session = ipf.createNamedSession(null, null, mksinfo.getUser(), mksinfo.getPassword());
+	private Session connect() throws APIException {
+		if (ip == null) {
+			ip = IntegrationPointFactory.getInstance().createIntegrationPoint(mksinfo.getHost(), mksinfo.getPort(),
+					mksinfo.isSecure(), mksinfo.getMajorVersion(), mksinfo.getMinorVersion());
+			ip.setAutoStartIntegrityClient(true);
+		}
+		Session session = ip.createNamedSession(null, null, mksinfo.getUser(), mksinfo.getPassword());
 		session.setDefaultUsername(mksinfo.getUser());
-		session.setAutoReconnect(true); // session失效允许自动连接
-		count++; // 允许自动重连，只保存创建数量
+		session.setAutoReconnect(true);
+		Command imConnect = new Command("im", "connect");
+		CmdRunner cmdRunner = session.createCmdRunner();
+		try {
+			Response res = cmdRunner.execute(imConnect);
+			logger.debug("Result: " + res.getExitCode());
+		} finally {
+			if(cmdRunner != null) {
+				cmdRunner.release();
+			}
+		}
+		return session;
+	}
+
+	private Session createSession() {
+		Session session = null;
+		try {
+			session = connect();
+			count++;
+		} catch (APIException e) {
+			logger.warn(IntegrityUtil.getMsg(e));
+			if (times++ < 3) {
+				return createSession();
+			}
+		}
 		return session;
 	}
 

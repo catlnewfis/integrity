@@ -4,29 +4,29 @@ public class MksInfo {
 
 	private String host;
 
-	private int port = 7001; // 默认端口 Nov 15, 2016
+	private int port = 7001; // August 29, 2017
 
 	private String user;
 
 	private String password;
 
-	private int majorVersion = 4; // 默认版本 Nov 15, 2016
+	private int majorVersion = 4; // August 29, 2017
 
 	private int minorVersion = 16; // August 29, 2017
 
 	private boolean secure;
 
-	private int maxCmdRunners = 30; // 最大数量
+	private int maxCmdRunners = 10; 
 
-	private int initSession = 5; // 初始数量
+	private int initSession = 5; 
 
-	private int maxSessionSize = 15; // 最大数量，不得超过100
+	private int maxSessionSize = 15; // max 100
 
-	private int waitTimes = 60; // 等待命令执行时间
+	private int waitTimes = 60;
 
 	private long lazyCheck = 60 * 60;
 
-	private long periodCheck = 60 * 60 * 2; // 每2小时session恢复到初始INIT_SESSION数量
+	private long periodCheck = 60 * 60 * 2; // 2 hour
 
 	public MksInfo() {
 

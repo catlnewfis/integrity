@@ -66,8 +66,6 @@ public class Constants {
 
 	public static final String ITEMLIST = "com.mks.api.response.ItemList";
 
-	public static final String CONECTION_KEY = "conn";
-
 	public static final String ISSUES = "issues";
 
 	public static final String VIEW_ISSUE = "viewissue";

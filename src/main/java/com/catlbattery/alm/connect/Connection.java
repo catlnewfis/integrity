@@ -1,37 +1,30 @@
 package com.catlbattery.alm.connect;
 
-import java.io.IOException;
 import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+import com.catlbattery.alm.util.IntegrityUtil;
 import com.mks.api.CmdRunner;
 import com.mks.api.Command;
 import com.mks.api.Session;
 import com.mks.api.response.APIException;
 import com.mks.api.response.Response;
 
+@Component
 public class Connection {
 
 	private static Log log = LogFactory.getLog(Connection.class);
 
-	private static Connection instance;
-
-	private Session session;
-
-	private Connection() {
-		super();
-	}
-
-	public synchronized static Connection getInstance() {
-		if (instance == null) {
-			instance = new Connection();
-		}
-		return instance;
-	}
+	@Autowired
+	private IntegrityFactory integrityFactory;
 
 	private CmdRunner getCmdRunner() throws APIException {
+		SessionPool conn = integrityFactory.getConnection();
+		Session session = conn.getSession();
 		Iterator<?> it = session.getCmdRunners();
 		int i = 0;
 		while (it.hasNext()) {
@@ -59,34 +52,22 @@ public class Connection {
 			sb.append(" ");
 			sb.append(cmds[i]);
 		}
-		log.info("Excecuting command: " + sb);
+		log.info("Execcuting command: " + sb);
 		Response response;
 		try {
 			response = cmdRunner.execute(command);
 			long spend = System.currentTimeMillis() - start;
-			log.info("Spent: " + spend);
+			log.info("Execute command Spent: " + spend);
 		} finally {
 			if (cmdRunner != null) {
 				try {
 					cmdRunner.release();
 				} catch (APIException e) {
-					log.info(e.getMessage());
+					log.info(IntegrityUtil.getMsg(e));
 				}
 			}
 		}
 		return response;
 	}
 
-	public void setSession(Session session) {
-		this.session = session;
-	}
-
-	public void terminate() {
-		if (session != null) {
-			try {
-				session.release();
-			} catch (IOException | APIException e) {
-			}
-		}
-	}
 }
