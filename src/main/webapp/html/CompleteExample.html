@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html ng-app="todoApp">
+<head>
+<meta charset="UTF-8">
+<title>TO DO List</title>
+	<!--[if lt IE 9]
+	<script src="../html5shiv.min.js"></script>
+	<![endif]-->
+	<script src="../js/jquery/jquery-3.2.1.min.js"></script>
+	<script src="../js/angular/angular.js"></script>
+	<link href="../bootstrap-3.3.7-dist/css/bootstrap.css" rel="stylesheet" />
+	<link href="../bootstrap-3.3.7-dist/css/bootstrap-theme.css" rel="stylesheet" />
+	<script src="../js/common/common.js"></script>
+	<script src="../js/alm/CompleteExample.js"></script>
+	<style>
+		header, section, footer, aside, nav, main, article, figure {
+		   display: block; 
+		}
+	</style>
+</head>
+<body ng-controller="ToDoCtrl">
+	<div class="page-header">
+	  <h1>
+	    {{todo.user}}'s To Do List
+	    <span class="label">{{todo.items.length}}</span>
+	  </h1>
+	</div>
+	<div class="btn btn-default">{{"AngularJS"}}</div>
+	<div class="btn btn-success">Bootstrap</div>
+	<div class="panel">
+	  <div class="input-group">
+	    <input class="form-control" />
+	    <span class="input-group-btn">
+	      <button class="btn btn-default">Add</button>
+	    </span>
+	  </div>
+	  <table class="table table-striped">
+	    <thead>
+	      <tr>
+	        <th>Description</th>
+	        <th>Done</th>
+	      </tr>
+	    </thead>
+	    <tbody></tbody>
+	  </table>
+	</div>
+</body>
+</html>
